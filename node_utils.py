@@ -132,6 +132,10 @@ def main():
             value['lastHeardRaw'] = convert_timestamp_to_age(value['lastHeard'])
             value['lastHeard'] = format_duration(value['lastHeardRaw'])
 
+    # Filter for favorite nodes if flag is set
+    if args.isFavorite:
+        data = {k: v for k, v in data.items() if v.get('isFavorite', False)}
+
     # Remove inactive nodes if the flag is set
     if args.remove_inactive:
         remove_inactive_nodes(data, args.meshtastic)
