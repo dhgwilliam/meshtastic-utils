@@ -90,7 +90,7 @@ def main():
     parser.add_argument('--channelUtilization', action='store_true', help="Display deviceMetrics.channelUtilization column")
     parser.add_argument('--airUtilTx', action='store_true', help="Display deviceMetrics.airUtilTx column")
     parser.add_argument('--uptimeSeconds', action='store_true', help="Display deviceMetrics.uptimeSeconds column")
-    parser.add_argument('--hopsAway', action='store_true', help="Display hopsAway column")
+    parser.add_argument('--hopsAway', action='store_true', help="Sort by hopsAway after lastHeard")
     parser.add_argument('--isFavorite', action='store_true', help="Display isFavorite column")
     parser.add_argument('--latitude', action='store_true', help="Display position.latitude column")
     parser.add_argument('--longitude', action='store_true', help="Display position.longitude column")
@@ -138,14 +138,16 @@ def main():
         # Filter out inactive nodes from the display
         data = {k: v for k, v in data.items() if 'lastHeardRaw' not in v or v['lastHeardRaw'] <= 3600}
 
+    # Sort by lastHeard first
     data = sorted(data.items(), key=lambda item: item[1].get('lastHeardRaw', float('inf')))
+    # If hopsAway flag is passed, sort by hopsAway as secondary criterion
     if args.hopsAway:
         data = sorted(data, key=lambda item: item[1].get('hopsAway', float('inf')))
 
     # Prepare data for the table
     table = PrettyTable()
 
-    columns = ['longName', 'lastHeard']
+    columns = ['longName', 'lastHeard', 'hopsAway']
     add_column_if_flag(columns, args.shortname, 'shortName')
     add_column_if_flag(columns, args.macaddr, 'macaddr')
     add_column_if_flag(columns, args.hwmodel, 'hwModel')
@@ -157,7 +159,6 @@ def main():
     add_column_if_flag(columns, args.channelUtilization, 'channelUtilization')
     add_column_if_flag(columns, args.airUtilTx, 'airUtilTx')
     add_column_if_flag(columns, args.uptimeSeconds, 'uptimeSeconds')
-    add_column_if_flag(columns, args.hopsAway, 'hopsAway')
     add_column_if_flag(columns, args.isFavorite, 'isFavorite')
     add_column_if_flag(columns, args.latitude, 'latitude')
     add_column_if_flag(columns, args.longitude, 'longitude')
@@ -175,6 +176,7 @@ def main():
         row = []
         row.append(value['user']['longName'])
         row.append(value.get('lastHeard', 'N/A'))
+        row.append(value.get('hopsAway', 'N/A'))
         add_value_if_column(row, columns, 'shortName', value['user'].get('shortName', 'N/A'))
         add_value_if_column(row, columns, 'macaddr', value['user'].get('macaddr', 'N/A'))
         add_value_if_column(row, columns, 'hwModel', value['user'].get('hwModel', 'N/A'))
@@ -186,7 +188,6 @@ def main():
         add_value_if_column(row, columns, 'channelUtilization', value.get('deviceMetrics', {}).get('channelUtilization', 'N/A'))
         add_value_if_column(row, columns, 'airUtilTx', value.get('deviceMetrics', {}).get('airUtilTx', 'N/A'))
         add_value_if_column(row, columns, 'uptimeSeconds', value.get('deviceMetrics', {}).get('uptimeSeconds', 'N/A'))
-        add_value_if_column(row, columns, 'hopsAway', value.get('hopsAway', 'N/A'))
         add_value_if_column(row, columns, 'isFavorite', value.get('isFavorite', 'N/A'))
         add_value_if_column(row, columns, 'latitude', value.get('position', {}).get('latitude', 'N/A'))
         add_value_if_column(row, columns, 'longitude', value.get('position', {}).get('longitude', 'N/A'))
