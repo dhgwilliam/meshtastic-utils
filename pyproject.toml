@@ -1,0 +1,11 @@
+[project]
+name = "meshtastic-utils"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "meshtastic>=2.6.0",
+    "prettytable>=3.15.1",
+    "wcwidth>=0.2.13",
+]
